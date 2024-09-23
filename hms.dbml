@@ -1,0 +1,280 @@
+Project "Hospital Management System" {
+    database_type: 'SQL Server'
+}
+
+Table severity_levels {
+    severity_id int [pk, increment]
+    severity_level nvarchar(20) [not null, note: "String representation of the severity a patient can have."]
+
+    Note: '''
+    The *severity_levels* Table acts as an ENUM selection for the severity of the patient. The table must
+    contain a string representation of how severy the patient is. This data is used to determine the order
+    in which patients are seen based on the severity level.
+    '''
+}
+
+Table allergies {
+    allergy_id int [pk, increment]
+    allergy_name nvarchar(30) [not null, unique, note: 'The name of an allergen the patient has. Must be unique to maintain first normal form.']
+
+    indexes {
+        allergy_name [name: 'IX_allergies_allergy_name']
+    }
+
+    Note: '''
+    The *allergies* Table stores data about different allergens that a patient can be allergic to. The *allergy_name* column
+    **must** be **unique** to ensure the table complies within the first normal form.
+    '''
+}
+
+Table patients {
+    patient_id int [pk, increment]
+    first_name nvarchar(25) [not null, note: 'The patients first name.']
+    last_name nvarchar(25) [not null, note: 'The patients last name.']
+    address nvarchar(100) [note: 'The patients address.']
+    phone_number char(12) [note: 'The patients phone number.']
+    email_address nvarchar(max) [note: 'The patients email address.']
+    dob date [note: 'The patients date of birth.']
+    visit_reason text [not null, note: 'The reason as to why the patient visite the hosptial.']
+    visit_date datetime2 [not null, default: 'current_timestamp', note: 'The date and time of when the patient went to the hospital.']
+    severity_id int [ref: > severity_levels.severity_id, not null, note: 'The ID of the severity_levels table that corresponds to the severity of the patient.']
+
+    indexes {
+        first_name [name: 'IX_patients_first_name']
+        last_name [name: 'IX_patients_last_name']
+        dob [name: 'IX_patients_dob']
+        severity_id [name: 'FK_patients_severity_levels']
+    }
+
+    Note: '''
+    The *patients* Table stores data about each patient that visits the hospital. The *address*, *phone_number*, *email_address*, and *dob*
+    columns are allowed to be null in the instance of a 'John Doe' or 'Jane Doe'.
+    '''
+}
+
+Table patient_admissions {
+    patient_admission_id int [pk, increment]
+    admission_date datetime2 [not null, default: 'current_timestamp', note: 'The date and time of when the patient admitted to the hospital.']
+    discharge_date datetime2 [note: 'The date and time of when the patient was discharged from the hospital.']
+    admission_reason text [not null, note: 'The reason as to why the patient was admitted.']
+    patient_id int [ref: > patients.patient_id, not null, note: 'The ID of the patient that has been admitted.']
+
+    indexes {
+        admission_date [name: 'IX_admission_date']
+        discharge_date [name: 'IX_discharge_date']
+    }
+
+    Note: '''
+    The *patient_admissions* Table stores data about each admission that the hospital has ever had. This table can be used
+    to query data such as how many admissions they have had in a certain amount of time along with why the patient was admitted.
+    '''
+}
+
+Table patient_allergies {
+    patient_id int [ref: > patients.patient_id, not null, note: 'The patients ID.']
+    allergy_id int [ref: > allergies.allergy_id, not null, note: 'The allergy ID.']
+    reaction nvarchar(30) [not null, note: 'The type of reaction the patient has from the allergen.']
+
+    indexes {
+        (patient_id, allergy_id) [pk, name: 'PK_patient_allergies_patients_allergies'] 
+        patient_id [name: 'FK_patient_allergies_patients']
+        allergy_id [name: 'FK_patient_allergies_allergies']
+    }
+
+    Note: '''
+    The *patient_allergies* Table stores data about an allergen a patient has along with the side effect
+    it has on the patient.
+    '''
+}
+
+
+Table patient_care_team {
+    patient_id int [ref: > patients.patient_id, not null, note: 'The ID of the patient the nurse is taking care of.']
+    employee_id int [ref: > employees.employee_id, note: 'The ID of the employee that is part of the patients care.']
+
+    indexes {
+        (patient_id, employee_id) [pk, name: 'PK_patient_care_team_patients_employees']
+        patient_id [name: 'FK_patient_care_team_patients']
+        employee_id [name: 'FK_patient_care_team_employees']
+    }
+
+    Note: '''
+    The *patient_care_team* Table is used as a junction table to hold data for who is taking care of a patient
+    and which employee is responsible for which patients.
+    '''
+}
+
+Table vital_signs {
+    vital_sign_id int [pk, increment]
+    blood_pressure nvarchar(7) [not null, note: 'The patients blood pressure reading.']
+    temperature int [not null, note: 'The patients temperature.']
+    weight int [not null, note: 'The patients weight.']
+    height nvarchar(5) [not null, note: 'The patients height.']
+    oxygen_levels nchar(3) [not null, note: 'The patients oxygen (o2) levels.']
+
+    Note: '''
+    The *vital_signs* Table is used to store patient vitals.
+    '''
+}
+
+Table patient_vitals {
+    patient_id int [ref: > patients.patient_id, not null, note: 'The ID of the pateint that corresponds to the vitals taken.']
+    vital_signs_id int [ref: > vital_signs.vital_sign_id, not null, note: 'Foreign Key to establish a relationship with the vital_signs table.']
+    time_taken datetime2 [not null, default: 'current_timestamp', note: 'The date and time of when the patients vitals were taken.']
+    employee_id int [ref: > employees.employee_id, note: 'The ID of the employee that took the patients vital signs.']
+
+    indexes {
+        (patient_id, vital_signs_id) [pk, name: 'PK_patient_vitals_patients_vitals']
+        patient_id [name: 'FK_patient_vitals_patients']
+        vital_signs_id [name: 'FK_patient_vitals_vitals']
+        employee_id [name: 'FK_patient_vitals_employees']
+    }
+
+    Note: '''
+    The *patient_vitals* Table is used as a junction table to create a many-to-many relationship between the *patients*
+    and *vital_signs* table. It is also used to keep track of which employee took the patients vitals.
+    '''
+}
+
+Table medications {
+    medication_id int [pk, increment]
+    medication_name nvarchar(100) [not null, unique, note: 'The name of a medication.']
+    units_of_measurement nvarchar(3) [not null, note: 'The unit of measurement the medication comes in (e.g.,mg, g, mcg, ml).']
+
+    indexes {
+        medication_name [name: 'IX_medications_medication_name']
+    }
+
+    Note: '''
+    The *medications* Table stores data about medications such as the name of the medication and the dosages unit
+    of measurement.
+    '''
+}
+
+Table patient_medications {
+    patient_id int [ref: > patients.patient_id, not null, note: 'The ID of the patient that is taking the medication.']
+    medication_id int [ref: > medications.medication_id, not null, note: 'The ID of the medication that the patient is taking.']
+    dosage int [not null, note: 'The dosage of the medication that was givin.']
+    time_givin datetime2 [not null, note: 'The date and time of when the patient was givin the medication.']
+    next_dosage datetime2 [not null, note: 'The date and time of when the patient is required or allowed to take their next dosage of the medication that was givin.'] // Must be after time_givin
+
+    indexes {
+        (patient_id, medication_id) [pk, name: 'PK_patient_medications_patients_medications']
+        patient_id [name: 'FK_patient_medications_patients']
+        medication_id [name: 'FK_patient_medications_medications']
+    }
+
+    Note: '''
+    The *patient_medications* Table is used as a junction table to establish a many-to-many relationship with the
+    *patients* and *medications* tables. It stores data about what medication(s) each patient is taking.
+    '''
+}
+
+
+Table specializations {
+    specialization_id int [pk, increment]
+    specialization_name nvarchar(50) [not null, unique, note: 'The name of a specialization that a doctor can specialize in. Must be unique to maintain first normal form.']
+
+    indexes {
+        specialization_name [name: 'IX_specializations_specialization_name']
+    }
+
+    Note: '''
+    The *specializations* Table stores data about a specialization that a employee can have. The *specialization_name* column
+    **must** be **unique** to ensure the table complies within the first normal form.
+    '''
+}
+
+Table rooms {
+    room_number int [pk]
+    sanitized boolean [not null, note: 'Boolean value that denotes if the room is cleaned and ready for the next patient.']
+    patient_id int [ref: < patients.patient_id, note: 'The ID of the patient that is assigned the room. Can be null if no patient is assigned to the room.']
+
+    indexes {
+        patient_id [name: 'FK_rooms_patients']
+    }
+
+    Note: '''
+    The *rooms* Table stores data about each room in the hospital.
+    '''
+}
+
+Table departments {
+    department_id int [pk, increment]
+    department_name nvarchar(50) [not null, unique, note: 'The name of a department within the hospital. Must be unique to maintain first normal firm.']
+
+    indexes {
+        department_name [name: 'IX_departments_department_name']
+    }
+
+    Note: '''
+    The *departments* Table stores data about each department the hospital has. The *department_name* column **must** be **unique**
+    to ensure the table complies within the first normal form.
+    '''
+}
+
+Table employees {
+    employee_id int [pk, increment]
+    first_name nvarchar(25) [not null, note: 'The employees first name.']
+    last_name nvarchar(25) [not null, note: 'The employees last name.']
+    address nvarchar(50) [not null, note: 'The address of the employee.']
+    phone_number char(12) [not null, note: 'The employees phone number.']
+    job_title nvarchar(100) [not null, note: 'The job title of the employee.']
+    department_id int [ref: > departments.department_id, note: 'The ID of the department in which the employee works in.']
+
+    indexes {
+        first_name [name: 'IX_employees_first_name']
+        last_name [name: 'IX_employees_last_name']
+        department_id [name: 'FK_employees_departments']
+    }
+
+    Note: '''
+    The *employees* table stores data about each person that is employed at the hospital.
+    '''
+}
+
+Table employee_specializations {
+    employee_id int [ref: > employees.employee_id, not null, note: 'The ID of the employee.']
+    specialization_id int [ref: > specializations.specialization_id, note: 'The ID of the specialization that the employee has.']
+
+    indexes {
+        (employee_id, specialization_id) [pk, name: 'PK_employee_specializations_employee_specializations']
+        employee_id [name: 'FK_employee_specializations_employees']
+        specialization_id [name: 'FK_employee_specializations_specializations']
+    }
+
+    Note: '''
+    The *employee_specializations* Table stores data about the field that employee specializes in. Can be *null* for non-medical
+    staff such as kitchen, accounting, etc...
+    '''
+}
+
+Table notes {
+    note_id int [pk, increment]
+    patient_id int [ref: > patients.patient_id, note: 'The ID of the patient the note belongs to.']
+    description text [not null, note: 'A small description of the note.']
+    "note" text [not null, note: 'The note that is written by an employee.']
+    time_of_note datetime2 [not null, default: 'current_timestamp', note: 'The date and time of when the note was written.']
+    employee_id int [ref: > employees.employee_id, note: 'The ID of the employee that wrote the note.']
+
+    indexes {
+        patient_id [name: 'FK_notes_patients']
+        employee_id [name: 'FK_notes_employees']
+    }
+
+    Note: '''
+    The *notes* Table stores data about notes that an employee has made for a certain patient such as updates, new orders, etc...
+    '''
+}
+
+Table admissions {
+    admission_id int [pk, increment]
+    admission_reason text [not null, note: 'The reason for the patients admission.']
+    length_of_admission_stay int [not null, note: 'The amount of time the patient was admitted.']
+    patient_outcome text [not null, note: 'The outcome of the patient.']
+
+    Note: '''
+    The *admissions* Table acts as a *fact* table and can be queried to get analytical data about
+    admissions and patient outcomes that have been admitted.
+    '''
+}

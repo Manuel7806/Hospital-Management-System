@@ -1,0 +1,27 @@
+name: dbdocs ci
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "hms.dbml"
+
+jobs:
+  update-dbdocs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Installing dbdocs
+        run: |
+          npm i -g dbdocs
+          echo "Installed dbdocs"
+
+      - name: Update dbdocs
+        env:
+          DBDOCS_TOKEN: ${{ secrets.DBDOCS_TOKEN }}
+        run: |
+          dbdocs build ./hms.dbml
+          echo "Updated dbdocs"
