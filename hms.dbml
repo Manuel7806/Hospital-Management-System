@@ -53,7 +53,7 @@ Table patients {
 }
 
 Table patient_admissions {
-    patient_admission_id int [pk, increment, not null, 'Surrogate primary key to uniquely identify each patient that has been admitted.']
+    patient_admission_id int [pk, increment, not null, note: 'Surrogate primary key to uniquely identify each patient that has been admitted.']
     admission_date datetime2 [not null, default: 'current_timestamp', note: 'The date and time of when the patient admitted to the hospital.']
     discharge_date datetime2 [note: 'The date and time of when the patient was discharged from the hospital.']
     admission_reason text [not null, note: 'The reason as to why the patient was admitted.']
@@ -76,7 +76,7 @@ Table patient_allergies {
     reaction nvarchar(30) [not null, note: 'The type of reaction the patient has from the allergen.']
 
     indexes {
-        (patient_id, allergy_id) [pk, not null, name: 'PK_patient_allergies_patients_allergies'] 
+        (patient_id, allergy_id) [pk, name: 'PK_patient_allergies_patients_allergies'] 
         patient_id [name: 'FK_patient_allergies_patients']
         allergy_id [name: 'FK_patient_allergies_allergies']
     }
@@ -93,7 +93,7 @@ Table patient_care_team {
     employee_id int [ref: > employees.employee_id, note: 'The ID of the employee that is part of the patients care.']
 
     indexes {
-        (patient_id, employee_id) [pk, not null, name: 'PK_patient_care_team_patients_employees']
+        (patient_id, employee_id) [pk, name: 'PK_patient_care_team_patients_employees']
         patient_id [name: 'FK_patient_care_team_patients']
         employee_id [name: 'FK_patient_care_team_employees']
     }
@@ -124,7 +124,7 @@ Table patient_vitals {
     employee_id int [ref: > employees.employee_id, not null, note: 'The ID of the employee that took the patients vital signs.']
 
     indexes {
-        (patient_id, vital_signs_id) [pk, not null, name: 'PK_patient_vitals_patients_vitals']
+        (patient_id, vital_signs_id) [pk, name: 'PK_patient_vitals_patients_vitals']
         patient_id [name: 'FK_patient_vitals_patients']
         vital_signs_id [name: 'FK_patient_vitals_vitals']
         employee_id [name: 'FK_patient_vitals_employees']
@@ -159,7 +159,7 @@ Table patient_medications {
     next_dosage datetime2 [not null, note: 'The date and time of when the patient is required or allowed to take their next dosage of the medication that was givin.'] // Must be after time_givin
 
     indexes {
-        (patient_id, medication_id) [pk, not null, name: 'PK_patient_medications_patients_medications']
+        (patient_id, medication_id) [pk, name: 'PK_patient_medications_patients_medications']
         patient_id [name: 'FK_patient_medications_patients']
         medication_id [name: 'FK_patient_medications_medications']
     }
@@ -238,7 +238,7 @@ Table employee_specializations {
     specialization_id int [ref: > specializations.specialization_id, not null, note: 'The ID of the specialization that the employee has.']
 
     indexes {
-        (employee_id, specialization_id) [pk, not null, name: 'PK_employee_specializations_employee_specializations']
+        (employee_id, specialization_id) [pk, name: 'PK_employee_specializations_employee_specializations']
         employee_id [name: 'FK_employee_specializations_employees']
         specialization_id [name: 'FK_employee_specializations_specializations']
     }
