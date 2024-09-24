@@ -2,6 +2,8 @@
 
 ![Hospital Management System ERD](images/Hospital-Management-System-ERD.png)
 
+The full documentation for the database can be found [here](https://dbdocs.io/manueldelarosa9722/Hospital-Management-System?view=relationships).
+
 ## About
 
 This database is designed to streamline healthcare operations by providing a comprehensive solution
