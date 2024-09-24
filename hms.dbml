@@ -3,8 +3,8 @@ Project "Hospital Management System" {
 }
 
 Table severity_levels {
-    severity_id int [pk, increment]
-    severity_level nvarchar(20) [not null, note: "String representation of the severity a patient can have."]
+    severity_id int [pk, increment, not null, note: 'Surrogate primary key to uniquely identify each severity level.']
+    severity_level nvarchar(20) [not null, unique, note: "String representation of the severity a patient can have. **Must** be unique to maintain first normal form."]
 
     Note: '''
     The *severity_levels* Table acts as an ENUM selection for the severity of the patient. The table must
@@ -14,8 +14,8 @@ Table severity_levels {
 }
 
 Table allergies {
-    allergy_id int [pk, increment]
-    allergy_name nvarchar(30) [not null, unique, note: 'The name of an allergen the patient has. Must be unique to maintain first normal form.']
+    allergy_id int [pk, increment, not null, note: 'Surrogate primary key to uniquely identify each allergen.']
+    allergy_name nvarchar(30) [not null, unique, note: 'The name of an allergen the patient has. **Must** be unique to maintain first normal form.']
 
     indexes {
         allergy_name [name: 'IX_allergies_allergy_name']
@@ -28,7 +28,7 @@ Table allergies {
 }
 
 Table patients {
-    patient_id int [pk, increment]
+    patient_id int [pk, increment, not null, note: 'Surrogate primary key to uniquely identify each patient.']
     first_name nvarchar(25) [not null, note: 'The patients first name.']
     last_name nvarchar(25) [not null, note: 'The patients last name.']
     address nvarchar(100) [note: 'The patients address.']
@@ -53,7 +53,7 @@ Table patients {
 }
 
 Table patient_admissions {
-    patient_admission_id int [pk, increment]
+    patient_admission_id int [pk, increment, not null, 'Surrogate primary key to uniquely identify each patient that has been admitted.']
     admission_date datetime2 [not null, default: 'current_timestamp', note: 'The date and time of when the patient admitted to the hospital.']
     discharge_date datetime2 [note: 'The date and time of when the patient was discharged from the hospital.']
     admission_reason text [not null, note: 'The reason as to why the patient was admitted.']
@@ -76,7 +76,7 @@ Table patient_allergies {
     reaction nvarchar(30) [not null, note: 'The type of reaction the patient has from the allergen.']
 
     indexes {
-        (patient_id, allergy_id) [pk, name: 'PK_patient_allergies_patients_allergies'] 
+        (patient_id, allergy_id) [pk, not null, name: 'PK_patient_allergies_patients_allergies'] 
         patient_id [name: 'FK_patient_allergies_patients']
         allergy_id [name: 'FK_patient_allergies_allergies']
     }
@@ -93,7 +93,7 @@ Table patient_care_team {
     employee_id int [ref: > employees.employee_id, note: 'The ID of the employee that is part of the patients care.']
 
     indexes {
-        (patient_id, employee_id) [pk, name: 'PK_patient_care_team_patients_employees']
+        (patient_id, employee_id) [pk, not null, name: 'PK_patient_care_team_patients_employees']
         patient_id [name: 'FK_patient_care_team_patients']
         employee_id [name: 'FK_patient_care_team_employees']
     }
@@ -105,7 +105,7 @@ Table patient_care_team {
 }
 
 Table vital_signs {
-    vital_sign_id int [pk, increment]
+    vital_sign_id int [pk, increment, not null, note: 'Surrogate primary key to uniquely identify each patients vital signs.']
     blood_pressure nvarchar(7) [not null, note: 'The patients blood pressure reading.']
     temperature int [not null, note: 'The patients temperature.']
     weight int [not null, note: 'The patients weight.']
@@ -121,10 +121,10 @@ Table patient_vitals {
     patient_id int [ref: > patients.patient_id, not null, note: 'The ID of the pateint that corresponds to the vitals taken.']
     vital_signs_id int [ref: > vital_signs.vital_sign_id, not null, note: 'Foreign Key to establish a relationship with the vital_signs table.']
     time_taken datetime2 [not null, default: 'current_timestamp', note: 'The date and time of when the patients vitals were taken.']
-    employee_id int [ref: > employees.employee_id, note: 'The ID of the employee that took the patients vital signs.']
+    employee_id int [ref: > employees.employee_id, not null, note: 'The ID of the employee that took the patients vital signs.']
 
     indexes {
-        (patient_id, vital_signs_id) [pk, name: 'PK_patient_vitals_patients_vitals']
+        (patient_id, vital_signs_id) [pk, not null, name: 'PK_patient_vitals_patients_vitals']
         patient_id [name: 'FK_patient_vitals_patients']
         vital_signs_id [name: 'FK_patient_vitals_vitals']
         employee_id [name: 'FK_patient_vitals_employees']
@@ -137,7 +137,7 @@ Table patient_vitals {
 }
 
 Table medications {
-    medication_id int [pk, increment]
+    medication_id int [pk, increment, not null, note: 'Surrogate primary key to uniquely identify each medication.']
     medication_name nvarchar(100) [not null, unique, note: 'The name of a medication.']
     units_of_measurement nvarchar(3) [not null, note: 'The unit of measurement the medication comes in (e.g.,mg, g, mcg, ml).']
 
@@ -159,7 +159,7 @@ Table patient_medications {
     next_dosage datetime2 [not null, note: 'The date and time of when the patient is required or allowed to take their next dosage of the medication that was givin.'] // Must be after time_givin
 
     indexes {
-        (patient_id, medication_id) [pk, name: 'PK_patient_medications_patients_medications']
+        (patient_id, medication_id) [pk, not null, name: 'PK_patient_medications_patients_medications']
         patient_id [name: 'FK_patient_medications_patients']
         medication_id [name: 'FK_patient_medications_medications']
     }
@@ -172,7 +172,7 @@ Table patient_medications {
 
 
 Table specializations {
-    specialization_id int [pk, increment]
+    specialization_id int [pk, increment, not null, note: 'Surrogate primary key to uniquely identify each specialization.']
     specialization_name nvarchar(50) [not null, unique, note: 'The name of a specialization that a doctor can specialize in. Must be unique to maintain first normal form.']
 
     indexes {
@@ -186,7 +186,7 @@ Table specializations {
 }
 
 Table rooms {
-    room_number int [pk]
+    room_number int [pk, not null, note: 'Surrogate primary key to uniquely identify each room in the hospital.']
     sanitized boolean [not null, note: 'Boolean value that denotes if the room is cleaned and ready for the next patient.']
     patient_id int [ref: < patients.patient_id, note: 'The ID of the patient that is assigned the room. Can be null if no patient is assigned to the room.']
 
@@ -200,7 +200,7 @@ Table rooms {
 }
 
 Table departments {
-    department_id int [pk, increment]
+    department_id int [pk, increment, not null, note: 'Surrogate primary key to uniquely identify each department.']
     department_name nvarchar(50) [not null, unique, note: 'The name of a department within the hospital. Must be unique to maintain first normal firm.']
 
     indexes {
@@ -214,7 +214,7 @@ Table departments {
 }
 
 Table employees {
-    employee_id int [pk, increment]
+    employee_id int [pk, increment, not null, note: 'Surrogate primary key to uniquely identify each employee.']
     first_name nvarchar(25) [not null, note: 'The employees first name.']
     last_name nvarchar(25) [not null, note: 'The employees last name.']
     address nvarchar(50) [not null, note: 'The address of the employee.']
@@ -235,10 +235,10 @@ Table employees {
 
 Table employee_specializations {
     employee_id int [ref: > employees.employee_id, not null, note: 'The ID of the employee.']
-    specialization_id int [ref: > specializations.specialization_id, note: 'The ID of the specialization that the employee has.']
+    specialization_id int [ref: > specializations.specialization_id, not null, note: 'The ID of the specialization that the employee has.']
 
     indexes {
-        (employee_id, specialization_id) [pk, name: 'PK_employee_specializations_employee_specializations']
+        (employee_id, specialization_id) [pk, not null, name: 'PK_employee_specializations_employee_specializations']
         employee_id [name: 'FK_employee_specializations_employees']
         specialization_id [name: 'FK_employee_specializations_specializations']
     }
@@ -250,7 +250,7 @@ Table employee_specializations {
 }
 
 Table notes {
-    note_id int [pk, increment]
+    note_id int [pk, increment, not null, note: 'Surrogate primary key to uniquely identify each note.']
     patient_id int [ref: > patients.patient_id, note: 'The ID of the patient the note belongs to.']
     description text [not null, note: 'A small description of the note.']
     "note" text [not null, note: 'The note that is written by an employee.']
