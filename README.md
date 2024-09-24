@@ -22,11 +22,15 @@ the developer edition.
 
 After downloading the software follow the installation wizard.
 
+---
+
 #### Software to Connect to SQL Server
 
-_note_: You can use any one of the softwares listed below.
+_note_: You can use any one of the software listed below.
 
 ##### Azure Data Studio
+
+---
 
 You can download and install [Azure Data Studio](https://learn.microsoft.com/en-us/azure-data-studio/download-azure-data-studio?tabs=win-install%2Cwin-user-install%2Credhat-install%2Cwindows-uninstall%2Credhat-uninstall)
 
@@ -35,10 +39,14 @@ to read more about connecting to SQL Server with Azure Data Studio if you need h
 
 ##### SQL Server Management Studio (SSMS)
 
+---
+
 You can download and install [SQL Server Management Studio](https://learn.microsoft.com/en-us/sql/ssms/download-sql-server-management-studio-ssms?view=sql-server-ver16). After downloading the software, you can follow along
 with the installation wizard.
 
 ##### VSCODE
+
+---
 
 You can download and install [VSCODE](https://code.visualstudio.com/download). After downloading VSCODE, you can follow
 along with the installation wizard.
